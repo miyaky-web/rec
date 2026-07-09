@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大學/科大入學資格判定系統 (Ver 6.2 終極完整版)</title>
+    <title>入學資格判定系統 (Ver 7.0-20260709)</title>
     <style>
-        :root { --primary: #003366; --accent: #c0392b; --pass: #27ae60; --fail: #7f8c8d; --bg: #f4f6f7; }
+        :root { --primary: #003366; --accent: #2980b9; --pass: #27ae60; --fail: #7f8c8d; --warning: #f39c12; --bg: #f4f6f7; }
         body { font-family: "Microsoft JhengHei", "Segoe UI", sans-serif; background: var(--bg); padding: 20px; color: #2c3e50; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-top: 5px solid var(--accent); }
+        .container { max-width: 1050px; margin: 0 auto; background: white; padding: 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-top: 5px solid var(--accent); }
         
         h1 { text-align: center; color: var(--primary); margin-bottom: 5px; font-size: 1.8rem; }
         .header-note { text-align: center; color: #7f8c8d; font-size: 0.9rem; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
@@ -22,11 +22,11 @@
         
         label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.95rem; color: #34495e; }
         select, input { width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem; box-sizing: border-box; transition: 0.2s; background: #fdfdfd; }
-        select:focus, input:focus { border-color: var(--accent); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15); }
+        select:focus, input:focus { border-color: var(--accent); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.15); }
         small { display: block; color: #7f8c8d; font-size: 0.85rem; margin-top: 5px; }
 
         /* 動態面板 */
-        .dynamic-panel { display: none; background: #fff9f9; border: 1px dashed #e6b0aa; padding: 15px; border-radius: 6px; margin-top: 10px; }
+        .dynamic-panel { display: none; background: #f0f8ff; border: 1px dashed #aec6cf; padding: 15px; border-radius: 6px; margin-top: 10px; }
         
         /* Checkbox Grid */
         .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-top: 10px; }
@@ -37,41 +37,42 @@
 
         /* 按鈕 */
         .btn-analyze { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-analyze:hover { background: #a93226; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .btn-analyze:hover { background: #1a5276; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 
         /* 結果展示 */
         .result-area { margin-top: 40px; display: none; border-top: 2px solid #eee; padding-top: 30px; }
-        .result-card { background: white; border: 1px solid #eee; border-radius: 8px; padding: 25px; margin-bottom: 20px; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .result-card { background: white; border: 1px solid #eee; border-radius: 8px; padding: 25px; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; }
         .result-card.pass { border-left: 6px solid var(--pass); }
-        .result-card.fail { border-left: 6px solid var(--fail); opacity: 0.7; background: #fafafa; }
+        .result-card.fail { border-left: 6px solid var(--fail); opacity: 0.6; background: #fafafa; }
         
-        .badge { float: right; padding: 6px 15px; border-radius: 30px; color: white; font-size: 0.85rem; font-weight: bold; letter-spacing: 0.5px; }
+        .badge { align-self: flex-start; padding: 5px 12px; border-radius: 30px; color: white; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .badge.pass { background: var(--pass); }
         .badge.fail { background: var(--fail); }
+        .badge.warning { background: var(--warning); color: #fff; }
         
-        .card-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; color: #2c3e50; }
-        .reason-list { padding-left: 20px; color: #34495e; margin: 0; }
-        .reason-list li { margin-bottom: 8px; line-height: 1.5; }
-        
-        /* 強調文字 */
-        .highlight-red { color: #c0392b; font-weight: bold; }
+        .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #2c3e50; }
+        .reason-list { padding-left: 20px; color: #34495e; margin: 0; font-size: 0.95rem; }
+        .reason-list li { margin-bottom: 8px; line-height: 1.4; }
+        .warning-text { color: #d35400; font-size: 0.85rem; margin-top: 10px; background: #fdedec; padding: 8px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-note">
-        <h1>🎓 正修-招生入學資格判定系統</h1>
-        <div>依據《入學大學同等學力認定標準》第1~11條完整運算</div>
+        <h1>🎓 正修科技大學-入學資格判定系統 (含六大學制)</h1>
+        <div>涵蓋《入學大學同等學力認定標準》與《入學專科學校同等學力認定標準》</div>
     </div>
 
+    <!-- 1. 基準與年齡 -->
     <div class="section">
         <div class="section-tag">基本條件</div>
         <div class="row">
             <div class="col">
                 <label>預計入學/考試日期</label>
                 <input type="date" id="targetDate">
-                <small>用於計算離校年資 (請依各學制簡章規定設定)</small>
+                <small>用於計算離校年資 (請依簡章規定設定)</small>
             </div>
             <div class="col">
                 <label>您的年齡區間</label>
@@ -80,11 +81,11 @@
                     <option value="18to21">年滿 18 歲 (但未滿 22 歲)</option>
                     <option value="22plus">年滿 22 歲 (含以上)</option>
                 </select>
-                <small>僅用於判定年齡門檻 (不涉及生日個資)</small>
             </div>
         </div>
     </div>
 
+    <!-- 2. 學歷資料 -->
     <div class="section">
         <div class="section-tag">學歷背景</div>
         <div class="row">
@@ -138,8 +139,8 @@
                 <div class="col">
                     <label>該年級之學期紀錄</label>
                     <select id="lastSemester">
-                        <option value="1">上學期 (僅有上學期成績)</option>
-                        <option value="2">下學期 (持有下學期成績)</option>
+                        <option value="1">上學期</option>
+                        <option value="2">下學期</option>
                     </select>
                 </div>
             </div>
@@ -147,12 +148,12 @@
                 <div class="col">
                     <label>累計修習學分數 (Credits)</label>
                     <input type="number" id="credits" placeholder="0">
-                    <small class="highlight-red">*空大/二專/五專肄業請務必填寫此欄</small>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 3. 專業資格 -->
     <div class="section">
         <div class="section-tag">技能與特殊資格</div>
         <div class="row">
@@ -175,31 +176,30 @@
             <div class="col">
                 <label>推廣教育/職訓課程累計學分</label>
                 <input type="number" id="extraCredits" placeholder="0">
-                <small>適用於年滿18/22歲條款</small>
             </div>
         </div>
 
         <label style="margin-top:15px; display:block; font-weight:700;">其他資格勾選</label>
         <div class="check-grid">
-            <div class="check-item"><label><input type="checkbox" id="openUnivStudent"> <span>空中大學"選修生" (需修畢40學分)</span></label></div>
+            <div class="check-item"><label><input type="checkbox" id="openUnivStudent"> <span>空中大學"選修生" (需40學分)</span></label></div>
             <div class="check-item"><label><input type="checkbox" id="selfStudy"> <span>自學進修學力鑑定通過</span></label></div>
             <div class="check-item"><label><input type="checkbox" id="natExam"> <span>國家考試及格</span></label></div>
             <div class="check-item"><label><input type="checkbox" id="military"> <span>軍事考試及格</span></label></div>
-            <div class="check-item"><label><input type="checkbox" id="specialRole"> <span>曾任專業技術人員/教師 (第6條)</span></label></div>
-            <div class="check-item"><label><input type="checkbox" id="art"> <span>藝術教育法一貫制</span></label></div>
+            <div class="check-item"><label><input type="checkbox" id="specialRole"> <span>曾任專業技術人員/教師</span></label></div>
+            <div class="check-item"><label><input type="checkbox" id="art"> <span>藝術教育法一貫制(七技)</span></label></div>
         </div>
     </div>
 
-    <button class="btn-analyze" onclick="analyze()">開始全面分析 (含轉學考/二技)</button>
+    <button class="btn-analyze" onclick="analyze()">開始資格判定</button>
 
+    <!-- 結果區 -->
     <div id="resultArea" class="result-area">
-        <h2 style="text-align:center; margin-bottom:30px;">📊 資格分析報告</h2>
-        <div id="output"></div>
+        <h2 style="text-align:center; margin-bottom:30px; color:#2980b9;">📊 分析判定報告</h2>
+        <div class="result-grid" id="output"></div>
     </div>
 </div>
 
 <script>
-    // 初始化設定
     const today = new Date();
     document.getElementById('targetDate').valueAsDate = new Date(today.getFullYear(), 8, 15);
     document.getElementById('leaveDate').valueAsDate = new Date(today.getFullYear()-1, 5, 30);
@@ -209,10 +209,9 @@
         const license = document.getElementById('license').value;
         const edu = document.getElementById('eduLevel').value;
         
-        document.getElementById('dateLabel').innerText = (status === 'graduated') ? "畢業日期" : "修業證明書/休學證明書離校日期";
+        document.getElementById('dateLabel').innerText = (status === 'graduated') ? "畢業日期" : "修業證明書離校日期";
         document.getElementById('dropoutPanel').style.display = (status === 'dropout') ? 'block' : 'none';
         
-        // 為了 3-9 條(高中畢業+5年工作)，高中職畢業生也需顯示工作欄位
         const showWork = (license !== 'none') || (['high', 'vocational'].includes(edu));
         document.getElementById('workPanel').style.display = showWork ? 'block' : 'none';
     }
@@ -251,20 +250,15 @@
             art: document.getElementById('art').checked
         };
 
-        // --- 2. 核心計算：學期權重 (解決「小豬」案例) ---
-        // 公式：(年級-1)*2 + 學期 (1=上, 2=下)
-        // 例如：二上=3, 二下=4, 三上=5
-        let totalSemesters = 0;
-        if (gr > 0) {
-            totalSemesters = (gr - 1) * 2 + sem;
-        }
+        let totalSemesters = (gr > 0) ? (gr - 1) * 2 + sem : 0;
 
         let report = {
-            freshman: { title: "大學/四技一年級 (Freshman)", pass: false, list: [] },
-            transfer: { title: "轉學考 (插班大二/大三)", pass: false, list: [] },
-            tech2:    { title: "二技一年級 (接續大三)", pass: false, list: [] },
-            master:   { title: "碩士班 (Master)", pass: false, list: [] },
-            phd:      { title: "博士班 (PhD)", pass: false, list: [] }
+            junior2:  { title: "二專 (二年制專科)", pass: false, list: [], warning: "" }, // NEW
+            freshman: { title: "大學/四技 (一年級)", pass: false, list: [], warning: "" },
+            transfer: { title: "轉學考 (插班大二/大三)", pass: false, list: [], warning: "" },
+            tech2:    { title: "二技 (接續大三)", pass: false, list: [], warning: "" },
+            master:   { title: "碩士班 (研究所)", pass: false, list: [], warning: "" },
+            phd:      { title: "博士班 (研究所)", pass: false, list: [], warning: "" }
         };
 
         function add(type, msg) {
@@ -272,65 +266,78 @@
             report[type].list.push(msg);
         }
 
-        // 第6條特殊身分 (通用)
-        if (flags.special) ["freshman", "transfer", "tech2", "master", "phd"].forEach(t => add(t, "曾任專業技術人員/教師 (第6條)"));
+        // 第6條特殊身分
+        if (flags.special) ["junior2", "freshman", "transfer", "tech2", "master", "phd"].forEach(t => add(t, "曾任專業技術人員/教師 (第6條)"));
 
         // =====================================
-        // A. 大學/四技一年級 (第2條)
+        // A. 大學/四技一年級 (第2條) & 二專 (入學專科標準第2條)
+        // 二專邏輯完全相容四技，除普通高中需特別標註
         // =====================================
+        let isFreshmanQualified = false;
+
         if (status === 'graduated') {
-            if (['high', 'vocational', 'poly_5', 'poly_3', 'poly_2', 'poly_equiv'].includes(edu)) add('freshman', "具備畢業學歷");
-        } else {
-            // 高中職肄業
-            if (['high', 'vocational'].includes(edu) || flags.art) {
-                if (totalSemesters >= 4 && yearsGap >= 2) add('freshman', "高中職肄業: 修滿高二 + 離校2年"); // 修滿高二(4學期)
-                else if (totalSemesters >= 5 && yearsGap >= 1) add('freshman', "高中職肄業: 修滿高三上 + 離校1年");
-                else if (totalSemesters >= 6) add('freshman', "高中職肄業: 修滿高三下");
+            if (['vocational', 'poly_5', 'poly_3', 'poly_2', 'poly_equiv'].includes(edu)) {
+                add('freshman', "具備相關學制畢業學歷");
+                add('junior2', "具備相關學制畢業學歷");
+            } else if (edu === 'high') {
+                add('freshman', "具備普通高中畢業學歷");
+                if (yearsGap >= 1) {
+                    add('junior2', "普通高中畢業且滿一年 (依教育部103年函釋)");
+                } else {
+                    report.junior2.warning = "註：普通高中畢業報考二專，依教育部函釋需取得學歷滿一年方具資格。";
+                }
             }
-            // 五專肄業
+        } else {
+            if (['high', 'vocational'].includes(edu) || flags.art) {
+                let reason = "";
+                if (totalSemesters >= 4 && yearsGap >= 2) reason = "高中職肄業: 修滿高二 + 離校2年";
+                else if (totalSemesters >= 5 && yearsGap >= 1) reason = "高中職肄業: 修滿高三上 + 離校1年";
+                else if (totalSemesters >= 6) reason = "高中職肄業: 修滿高三下";
+                
+                if (reason) { add('freshman', reason); add('junior2', reason); }
+            }
             if (edu === 'poly_5' || flags.art) {
-                // 修滿專三下 = 6學期
-                if (totalSemesters >= 6 && yearsGap >= 1) add('freshman', "五專肄業: 修滿專三下 + 離校1年");
-                // 修讀專四(7學期)以上
-                else if (totalSemesters >= 7) add('freshman', "五專肄業: 修讀專四或專五期間");
+                let reason = "";
+                if (totalSemesters >= 6 && yearsGap >= 1) reason = "五專肄業: 修滿專三下 + 離校1年";
+                else if (totalSemesters >= 7) reason = "五專肄業: 修讀專四或專五期間";
+                
+                if (reason) { add('freshman', reason); add('junior2', reason); }
             }
         }
         
-        if (license==='C' && work>=5) add('freshman', "丙級證照 + 5年工作");
-        if (license==='B' && work>=2) add('freshman', "乙級證照 + 2年工作");
-        if (license==='A') add('freshman', "甲級證照");
+        let certReason = "";
+        if (license==='C' && work>=5) certReason = "丙級證照 + 5年工作";
+        else if (license==='B' && work>=2) certReason = "乙級證照 + 2年工作";
+        else if (license==='A') certReason = "甲級證照";
+        if (certReason) { add('freshman', certReason); add('junior2', certReason); }
         
-        if (flags.selfStudy) add('freshman', "自學進修學力鑑定通過");
-        if (flags.military) add('freshman', "軍事考試及格");
-        if (flags.natExam) add('freshman', "國家考試及格");
+        let otherReason = "";
+        if (flags.selfStudy) otherReason = "自學進修學力鑑定通過";
+        if (flags.military) otherReason = "軍事考試及格";
+        if (flags.natExam) otherReason = "國家考試及格";
+        if (otherReason) { add('freshman', otherReason); add('junior2', otherReason); }
 
-        if (is22Plus && extraCredits>=40) add('freshman', "滿22歲 + 40推廣學分");
-        if (is18Plus && extraCredits>=150) add('freshman', "滿18歲 + 150職訓學分");
-        if (flags.openUniv && extraCredits>=40) add('freshman', "空大選修生 + 40學分");
+        let creditReason = "";
+        if (is22Plus && extraCredits>=40) creditReason = "滿22歲 + 40推廣學分";
+        else if (is18Plus && extraCredits>=150) creditReason = "滿18歲 + 150職訓學分";
+        else if (flags.openUniv && extraCredits>=40) creditReason = "空大選修生 + 40學分";
+        if (creditReason) { add('freshman', creditReason); add('junior2', creditReason); }
 
         // =====================================
         // B. 轉學考 (第4條)
         // =====================================
-        // 一般大學肄業
         if (edu === 'bachelor' && status === 'dropout') {
             if (totalSemesters >= 2) add('transfer', "大學修滿2學期：可轉大二上");
             if (totalSemesters >= 3) add('transfer', "大學修滿3學期：可轉大二下");
             if (totalSemesters >= 4) add('transfer', "大學修滿4學期：可轉大三上");
-            if (totalSemesters >= 5) add('transfer', "大學修滿5學期：可轉大三下");
-            
-            // 4-2-1 二技轉學考特殊條款
-            if (totalSemesters >= 5) add('transfer', "大學修滿5學期：可轉二技一年級下學期 (4-2-1)");
+            if (totalSemesters >= 5) add('transfer', "大學修滿5學期：可轉大三下 / 轉二技一年級下學期");
         }
-        
-        // 空大肄業全修生 (第4條第6款)
         if (edu === 'open_univ' && status === 'dropout') {
             if (credits >= 36) add('transfer', "空大全修生36學分：可轉大二");
             if (credits >= 72) add('transfer', "空大全修生72學分：可轉大三");
         }
-        
-        // 專科畢業
         if (status === 'graduated' && ['poly_5','poly_2','poly_3','poly_equiv'].includes(edu)) {
-            add('transfer', "專科畢業具轉學資格");
+            add('transfer', "專科畢業具報考資格 (多數轉大二/大三)");
         }
 
         // =====================================
@@ -340,33 +347,25 @@
             if (['poly_5', 'poly_3', 'poly_2', 'poly_equiv'].includes(edu)) add('tech2', "專科畢業");
             if (['high', 'vocational'].includes(edu) && work>=5) add('tech2', "高中職畢業 + 5年工作 (3-9)");
         } else {
-             // 二專肄業 (需修滿二上=3學期+離校2年，或修讀二下=4學期+離校1年)
             if (edu === 'poly_2') {
                 if (totalSemesters >= 3 && yearsGap >= 2) add('tech2', "二專肄業: 修滿二上 + 離校2年");
                 else if (totalSemesters >= 4 && yearsGap >= 1) add('tech2', "二專肄業: 修讀二下期間 + 離校1年");
                 else if (totalSemesters >= 4 && credits>=80) add('tech2', "二專肄業: 修滿規定年限 + 80學分");
             }
-            // 五專肄業 (需修滿專四=8學期+3年, 專五上=9學期+2年, 專五下=10學期+1年)
             if (edu === 'poly_5') {
                 if (totalSemesters >= 8 && yearsGap >= 3) add('tech2', "五專肄業: 修滿專四 + 離校3年");
                 else if (totalSemesters >= 9 && yearsGap >= 2) add('tech2', "五專肄業: 修滿專五上 + 離校2年");
                 else if (totalSemesters >= 10 && yearsGap >= 1) add('tech2', "五專肄業: 修讀專五下期間 + 離校1年");
                 else if (totalSemesters >= 10 && credits>=220) add('tech2', "五專肄業: 修滿規定年限 + 220學分");
             }
-            // 大學肄業 (需修滿二下=4學期) - "小豬"案例修正處
             if (edu === 'bachelor' && totalSemesters >= 4) {
                  add('tech2', "大學肄業: 修滿二下 (含)以上");
             }
         }
-        
         if (license==='B' && work>=4) add('tech2', "乙級證照 + 4年工作");
         if (license==='A' && work>=2) add('tech2', "甲級證照 + 2年工作");
         if (flags.natExam) add('tech2', "國家考試及格");
-        
-        // 3-8條款 (具備大學報考資格 + 22歲 + 80學分)
-        if (is22Plus && extraCredits>=80 && report.freshman.pass) {
-             add('tech2', "滿22歲 + 具大學報考資格 + 80學分 (3-8)");
-        }
+        if (is22Plus && extraCredits>=80 && report.freshman.pass) add('tech2', "滿22歲 + 具大學新生報考資格 + 80學分");
 
         // =====================================
         // D. 碩士 (第5條)
@@ -376,7 +375,6 @@
             if (['poly_5', 'poly_2', 'poly_equiv'].includes(edu) && yearsGap>=3) add('master', "二專/五專畢業 + 離校3年");
             if (edu === 'poly_3' && yearsGap>=2) add('master', "三專畢業 + 離校2年");
         } else {
-            // 大學肄業 (需修滿大三=6學期+離校2年, 或修滿大四=8學期+離校1年)
             if (edu === 'bachelor') {
                 if (totalSemesters >= 6 && yearsGap >= 2) add('master', "大學肄業: 修滿大三 + 離校2年");
                 if (totalSemesters >= 8 && yearsGap >= 1) add('master', "大學肄業: 修滿規定年限 + 離校1年");
@@ -391,9 +389,8 @@
         // =====================================
         if (status === 'graduated') {
             if (edu === 'master') add('phd', "碩士畢業");
-            if (edu === 'bachelor' && work>=5) add('phd', "學士畢業 + 5年工作");
+            if (edu === 'bachelor' && work>=5) add('phd', "學士畢業 + 5年工作 (需具相當論文水準著作)");
         } else {
-             // 碩士肄業 (修滿2年=4學期 + 離校1年)
             if (edu === 'master' && totalSemesters >= 4 && yearsGap >= 1) add('phd', "碩士肄業: 修滿2年 + 離校1年");
         }
         if (flags.natExam && work>=6) add('phd', "高考及格 + 6年工作");
@@ -402,10 +399,11 @@
         const out = document.getElementById('output');
         out.innerHTML = "";
         
-        const types = [report.freshman, report.transfer, report.tech2, report.master, report.phd];
+        const types = [report.junior2, report.freshman, report.transfer, report.tech2, report.master, report.phd];
         types.forEach(t => {
             const cls = t.pass ? "pass" : "fail";
-            const badgeTxt = t.pass ? "✅ 符合" : "未符合";
+            const badgeTxt = t.pass ? "✅ 具報考資格" : "未達報考標準";
+            
             let html = `
                 <div class="result-card ${cls}">
                     <span class="badge ${cls}">${badgeTxt}</span>
@@ -413,8 +411,11 @@
             `;
             if (t.pass) {
                 html += `<ul class="reason-list">${t.list.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+                if (t.warning) {
+                    html += `<div class="warning-text">⚠️ ${t.warning}</div>`;
+                }
             } else {
-                html += `<div style="color:#7f8c8d; font-size:0.95rem;">未符合法規要求</div>`;
+                html += `<div style="color:#7f8c8d; font-size:0.95rem; flex-grow: 1;">依輸入資料，未達法規要求。</div>`;
             }
             html += `</div>`;
             out.innerHTML += html;
