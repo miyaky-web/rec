@@ -138,6 +138,10 @@
 
         label { display: block; margin-bottom: 7px; font-weight: 800; color: #344a54; }
         .required::after { content: " 必填"; color: var(--danger); font-size: .75rem; font-weight: 700; }
+        .field.required-field input,
+        .field.required-field select { background: #fff9e8; border-color: #dfbd68; box-shadow: inset 0 0 0 1px rgba(223, 189, 104, .12); }
+        .field.required-field input:focus,
+        .field.required-field select:focus { background: #fffdf5; border-color: #e79535; box-shadow: 0 0 0 3px rgba(231, 149, 53, .18); }
 
         input[type="date"],
         input[type="number"],
@@ -322,12 +326,12 @@
                 </div>
                 <div class="section-body">
                     <div class="grid">
-                        <div class="field half">
+                        <div class="field half required-field">
                             <label for="programStartDate" class="required">預計入學日期（開學日以9/10為基準）</label>
                             <input type="date" id="programStartDate" required>
                             <span class="hint">四技、轉學、二技、碩博士及二專的離校、工作年數都以此日計算。</span>
                         </div>
-                        <div class="field">
+                        <div class="field required-field">
                             <label for="ageRange" class="required">學生於開學日的年齡區間</label>
                             <select id="ageRange" required>
                                 <option value="" selected>請選擇年齡區間</option>
@@ -348,7 +352,7 @@
                 </div>
                 <div class="section-body">
                     <div class="grid">
-                        <div class="field half">
+                        <div class="field half required-field">
                             <label for="educationLevel" class="required">學生目前或最高就讀學制</label>
                             <select id="educationLevel" required>
                                 <option value="none">無其他學歷／僅國中程度</option>
@@ -366,13 +370,13 @@
                                 <option value="directPhd">逕修讀博士學位</option>
                             </select>
                         </div>
-                        <div class="field half">
+                        <div class="field half required-field">
                             <label for="educationStatus" class="required">該學制修業狀態</label>
                             <select id="educationStatus" required>
                                 <option value="graduated">已畢業／取得學位</option>
                                 <option value="dropout">休學、退學或肄業</option>
-                                <option value="studying">目前仍在學</option>
-                                <option value="completedNotGraduated">修滿規定年限但未畢業</option>
+                                <option value="studying" id="studyingStatusOption">目前仍在學</option>
+                                <option value="completedNotGraduated" id="completedNotGraduatedStatusOption">修滿規定年限但未畢業</option>
                             </select>
                         </div>
 
@@ -603,6 +607,17 @@
             openUniversity: 6,
             master: 6,
             directPhd: 6
+        };
+
+        const REQUIRED_COMPLETION_YEAR_BY_LEVEL = {
+            highVocational: 3,
+            highGeneral: 3,
+            poly2: 2,
+            poly3: 3,
+            poly5: 5,
+            bachelor: 4,
+            bachelor6: 6,
+            tech2Bachelor: 2
         };
 
         function maximumCompletedYear(level, artProgram = false, artEquivalent = "high") {
@@ -836,7 +851,7 @@
             }
 
             if (leftStudy && data.educationLevel === "poly2") {
-                if (data.completedRequiredDuration && data.programCredits >= 80) pass("tech2", "二專修滿規定年限且修畢80學分以上");
+                if (completedDuration && semesters >= 4 && data.programCredits >= 80) pass("tech2", "二專修滿規定年限且修畢80學分以上");
                 else if (semesters >= 4 && data.educationEndDate && leaveYears >= 1) pass("tech2", "二專修讀最後一年下學期期間離校滿一年");
                 else if (semesters >= 3 && data.educationEndDate && leaveYears >= 2) pass("tech2", "二專修滿最後一年上學期後離校滿二年");
                 else if (semesters >= 3 && !data.educationEndDate) missing("tech2", "請補填二專最後修滿學期末日");
@@ -848,7 +863,7 @@
                 else if (semesters >= 4 && !data.educationEndDate) missing("tech2", "請補填三專最後修滿學期末日");
             }
             if (leftStudy && data.educationLevel === "poly5") {
-                if (data.completedRequiredDuration && data.programCredits >= 220) pass("tech2", "五專修滿規定年限且修畢220學分以上");
+                if (completedDuration && semesters >= 10 && data.programCredits >= 220) pass("tech2", "五專修滿規定年限且修畢220學分以上");
                 else if (semesters >= 10 && data.educationEndDate && leaveYears >= 1) pass("tech2", "五專修讀最後一年下學期期間離校滿一年");
                 else if (semesters >= 9 && data.educationEndDate && leaveYears >= 2) pass("tech2", "五專修滿最後一年上學期後離校滿二年");
                 else if (semesters >= 8 && data.educationEndDate && leaveYears >= 3) pass("tech2", "五專僅未修最後一年，離校滿三年");
@@ -856,7 +871,7 @@
             }
             if (leftStudy && ["bachelor", "bachelor6"].includes(data.educationLevel) && semesters >= 4) pass("tech2", "大學學士班肄業並修滿二年級下學期");
             if (data.artProgram && data.artEquivalent === "poly5" && leftStudy && semesters >= 8) {
-                if (data.completedRequiredDuration && data.programCredits >= 220) pass("tech2", "藝術一貫制相當五專，修滿年限且修畢220學分以上");
+                if (completedDuration && semesters >= 10 && data.programCredits >= 220) pass("tech2", "藝術一貫制相當五專，修滿年限且修畢220學分以上");
                 else if (data.educationEndDate && semesters >= 10 && leaveYears >= 1) pass("tech2", "藝術一貫制相當五專，修讀最後一年下學期期間離校滿一年");
                 else if (data.educationEndDate && semesters >= 9 && leaveYears >= 2) pass("tech2", "藝術一貫制相當五專，修滿最後一年上學期後離校滿二年");
                 else if (data.educationEndDate && semesters >= 8 && leaveYears >= 3) pass("tech2", "藝術一貫制相當五專，僅未修最後一年且離校滿三年");
@@ -991,12 +1006,21 @@
             if (!data.ageRange) errors.push("請選擇學生於開學日的年齡區間。");
             const allowedMaximumYear = maximumCompletedYear(data.educationLevel, data.artProgram, data.artEquivalent);
             if (data.lastYear > allowedMaximumYear) errors.push(`所選學制的最後完成年級不可超過${allowedMaximumYear}年級。`);
+            if (data.educationStatus === "studying" && !["bachelor", "bachelor6", "tech2Bachelor"].includes(data.educationLevel)) errors.push("目前仍在學僅適用於一般大學／四技、六年以上學士班或二技的轉學資格判斷。");
+            const requiredCompletionYear = REQUIRED_COMPLETION_YEAR_BY_LEVEL[data.educationLevel] ?? null;
+            if (data.educationStatus === "completedNotGraduated") {
+                if (!requiredCompletionYear) {
+                    errors.push("此學制不適用「修滿規定年限但未畢業」狀態。");
+                } else if (data.lastYear !== requiredCompletionYear || data.lastSemester !== 2) {
+                    errors.push(`選擇「修滿規定年限但未畢業」時，最後完成學期必須是${requiredCompletionYear}年級下學期。`);
+                }
+            }
             const leftStudy = ["dropout", "completedNotGraduated"].includes(data.educationStatus);
             const validCompletionConfirmation = leftStudy && (
-                (data.educationLevel === "poly2" && data.lastYear === 2 && data.lastSemester === 2) ||
-                (data.educationLevel === "poly5" && data.lastYear === 5 && data.lastSemester === 2) ||
+                (data.educationStatus === "dropout" && data.educationLevel === "poly2" && data.lastYear === 2 && data.lastSemester === 2) ||
+                (data.educationStatus === "dropout" && data.educationLevel === "poly5" && data.lastYear === 5 && data.lastSemester === 2) ||
                 (data.educationLevel === "bachelor6" && data.lastYear >= 4) ||
-                (data.artProgram && data.artEquivalent === "poly5" && data.lastYear === 5 && data.lastSemester === 2)
+                (data.educationStatus === "dropout" && data.artProgram && data.artEquivalent === "poly5" && data.lastYear === 5 && data.lastSemester === 2)
             );
             if (data.completedRequiredDuration && !validCompletionConfirmation) errors.push("已修滿年限／四年課程的勾選與最後完成年級、學期不一致。");
             if (data.educationEndDate && data.programStartDate && parseDate(data.educationEndDate) > parseDate(data.programStartDate)) errors.push("最後修滿學期末日不可晚於各學制開學日。");
@@ -1042,12 +1066,24 @@
 
         function updateDynamicFields() {
             const show = (id, visible) => document.getElementById(id).classList.toggle("show", visible);
-            const status = document.getElementById("educationStatus").value;
             const level = document.getElementById("educationLevel").value;
+            const statusSelect = document.getElementById("educationStatus");
+            const studyingStatusOption = document.getElementById("studyingStatusOption");
+            const completedNotGraduatedStatusOption = document.getElementById("completedNotGraduatedStatusOption");
+            const supportsStudyingStatus = ["bachelor", "bachelor6", "tech2Bachelor"].includes(level);
+            const requiredCompletionYear = REQUIRED_COMPLETION_YEAR_BY_LEVEL[level] ?? null;
+            studyingStatusOption.hidden = !supportsStudyingStatus;
+            studyingStatusOption.disabled = !supportsStudyingStatus;
+            completedNotGraduatedStatusOption.hidden = !requiredCompletionYear;
+            completedNotGraduatedStatusOption.disabled = !requiredCompletionYear;
+            if (!supportsStudyingStatus && statusSelect.value === "studying") statusSelect.value = "dropout";
+            if (!requiredCompletionYear && statusSelect.value === "completedNotGraduated") statusSelect.value = "dropout";
+            const status = statusSelect.value;
             const license = document.getElementById("licenseLevel").value;
             const artProgram = document.getElementById("artProgram").checked;
             const artEquivalent = document.getElementById("artEquivalent").value;
             const lastCompletedYearSelect = document.getElementById("lastCompletedYear");
+            const lastCompletedSemesterSelect = document.getElementById("lastCompletedSemester");
             const allowedMaximumYear = maximumCompletedYear(level, artProgram, artEquivalent);
             Array.from(lastCompletedYearSelect.options).forEach(option => {
                 const optionYear = Number(option.value) || 0;
@@ -1055,9 +1091,17 @@
                 option.hidden = unavailable;
                 option.disabled = unavailable;
             });
-            if ((Number(lastCompletedYearSelect.value) || 0) > allowedMaximumYear) lastCompletedYearSelect.value = "0";
+            const lockCompletedStudyPeriod = status === "completedNotGraduated" && Boolean(requiredCompletionYear);
+            if (lockCompletedStudyPeriod) {
+                lastCompletedYearSelect.value = String(requiredCompletionYear);
+                lastCompletedSemesterSelect.value = "2";
+            } else if ((Number(lastCompletedYearSelect.value) || 0) > allowedMaximumYear) {
+                lastCompletedYearSelect.value = "0";
+            }
+            lastCompletedYearSelect.disabled = lockCompletedStudyPeriod;
+            lastCompletedSemesterSelect.disabled = lockCompletedStudyPeriod;
             const lastCompletedYear = Number(lastCompletedYearSelect.value) || 0;
-            const lastCompletedSemester = Number(document.getElementById("lastCompletedSemester").value) || 0;
+            const lastCompletedSemester = Number(lastCompletedSemesterSelect.value) || 0;
             const leftStudy = ["dropout", "completedNotGraduated"].includes(status);
             const artPoly5 = artProgram && artEquivalent === "poly5";
             const bachelorSixRoute = level === "bachelor6";
@@ -1065,19 +1109,22 @@
             const poly2CompletionRoute = level === "poly2" && lastCompletedYear === 2 && lastCompletedSemester === 2;
             const poly5CompletionRoute = level === "poly5" && lastCompletedYear === 5 && lastCompletedSemester === 2;
             const artPoly5CompletionRoute = artPoly5 && lastCompletedYear === 5 && lastCompletedSemester === 2;
-            const needsCompletionConfirmation = leftStudy && (poly2CompletionRoute || poly5CompletionRoute || artPoly5CompletionRoute || bachelorSixCompletionRoute);
-            if (!needsCompletionConfirmation) {
-                document.getElementById("completedRequiredDuration").checked = false;
-                document.getElementById("programCredits").value = 0;
-            }
+            const completedStudyPeriodStatus = status === "completedNotGraduated";
+            const needsCompletionConfirmation =
+                (status === "dropout" && (poly2CompletionRoute || poly5CompletionRoute || artPoly5CompletionRoute)) ||
+                (leftStudy && bachelorSixCompletionRoute);
+            const showProgramCreditsDirectly = completedStudyPeriodStatus && (poly2CompletionRoute || poly5CompletionRoute || artPoly5CompletionRoute);
+            if (!needsCompletionConfirmation) document.getElementById("completedRequiredDuration").checked = false;
             const completedDurationChecked = document.getElementById("completedRequiredDuration").checked;
+            const needsProgramCredits = showProgramCreditsDirectly || (needsCompletionConfirmation && completedDurationChecked);
+            if (!needsProgramCredits) document.getElementById("programCredits").value = 0;
             document.getElementById("completedDurationLabel").textContent = bachelorSixRoute ? "可確認已修滿四年課程" : "可確認已修滿該學制規定修業年限";
             document.getElementById("completedDurationHint").textContent = bachelorSixRoute
                 ? "請依歷年成績單確認已完成四年級下學期，再填寫累計學分。"
                 : "請依修業證明及歷年成績單確認，不確定時請勿勾選。";
             show("studyDetailPanel", status !== "graduated" || ["highVocational", "highGeneral", "poly2", "poly3", "poly5", "bachelor", "bachelor6", "tech2Bachelor", "openUniversity", "master", "directPhd"].includes(level));
             show("completedDurationWrap", needsCompletionConfirmation);
-            show("programCreditsWrap", needsCompletionConfirmation && completedDurationChecked);
+            show("programCreditsWrap", needsProgramCredits);
             show("masterCoursesWrap", level === "master" && leftStudy);
             show("licenseDetailPanel", license !== "none");
             show("bHighestWrap", license === "B");
